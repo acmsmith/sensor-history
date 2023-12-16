@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://getbootstrap.com/docs/5.2/assets/css/docs.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.js"></script> -->
+    <link rel="stylesheet" type="text/css" href="chart.css">
+    <title>AS Sensors</title>
+</head>
+
+<body class="p-3 m-0 border-0 bd-example">
+    <nav class="navbar navbar-expand-lg bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">AS Sensors</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
+                aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            View
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a id="6hDropDown" class="dropdown-item" href="#" onclick="updateXAxis(6)">Last 6hrs</a></li>
+                            <li><a id="12hDropDown" class="dropdown-item" href="#" onclick="updateXAxis(12)">Last 12hrs</a></li>
+                            <li><a id="24hDropDown" class="dropdown-item active" href="#" onclick="updateXAxis(24)">Last 24hrs</a></li>
+                            <li><a id="48hDropDown" class="dropdown-item" href="#" onclick="updateXAxis(48)">Last 48hrs</a></li>
+                            <!-- <li><a class="dropdown-item" href="#" onclick="updateXAxis(168)">All</a></li> -->
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="chart-container" style="position: relative; width:85vw; margin: 0 auto;">
+        <canvas id="TempChart"></canvas>
+        <canvas id="HumChart"></canvas>
+        <table class="table" style="margin-top:50px">
+            <thead>
+              <tr>
+                <th scope="col"></th>
+                <th scope="col">Size</th>
+                <th scope="col">Last Modified</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Temperature Log</th>
+                <td id="tsize"></td>
+                <td id="tlm"></td>
+              </tr>
+              <tr>
+                <th scope="row">Humidity Log</th>
+                <td id="hsize"></td>
+                <td id="hlm"></td>
+              </tr>
+            </tbody>
+          </table>
+          <script src="chart-config.js"></script>
+    </div>
+</body>
+
+
+</html>
