@@ -21,16 +21,15 @@ function addHours(date, hours) {
 async function getSensorInfo(){
     const response = await fetch('/getallsensors');
     this.SensorInfo = await response.json();
-    getSensorDataRaw('/gettemperaturelog','TempChart');
-    getSensorDataRaw('/gethumiditylog','HumChart');
+    getSensorDataRaw('/getdata/temperature','TempChart');
+    getSensorDataRaw('/getdata/humidity','HumChart');
 }
 
 async function getSensorDataRaw(endpoint, chart)
 {
     const response = await fetch(endpoint);
-    const rawdata = await response.text();
-    var trimmed = '[' + rawdata.slice(0,-2) + ']';
-    getSensorDatasets(JSON.parse(trimmed), chart);     
+    const rawdata = await response.json();
+    getSensorDatasets(rawdata, chart);
 }
 
 function getSensorDatasets(data, chart){

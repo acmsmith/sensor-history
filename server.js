@@ -1,69 +1,54 @@
-require("dotenv").config();
 
 const express = require('express');
 const axios = require('axios').default;
 const path = require('path');
-const fs = require('fs');
 const app = express();
+const sqlconfig = require('./sql/config');
+const sqlconnection = require('./sql/connection');
+const sqldata = require('./sql/data');
+var trimlogperiod = parseFloat(process.env.LOG_RETENTION_PERIOD);
+var updateRateSecods = parseFloat(process.env.UPDATE_RATE);
+let db;
+let elapsed = 0;
 
 app.listen(process.env.PORT, () => {
-  console.log(`Container log dir: ${process.env.LOG_PATH}.`);
   console.log(`Phoscon Server: ${process.env.PHOSCON_SERVER}.`);
   console.log(`The following sensors will be logged: ${process.env.SENSORS}.`);
+  console.log(`Update Rate: ${process.env.UPDATE_RATE} seconds`);
+  console.log(`History will be kept for: ${process.env.LOG_RETENTION_PERIOD} seconds`);
   console.log(`Sensor API is listening on port ${process.env.PORT}.`);
-  setInterval(phosconListener,60000);
+  db = sqlconnection.connectToDatabase();
+  setInterval(phosconListener,process.env.UPDATE_RATE*1000);
   }
 );
 
 app.use(express.static('sensorviewer'));
 
 function phosconListener(){
-  console.log("Updating Devices...");
-  var sensors = process.env.SENSORS.split(',');
-  for(let i=0; i<sensors.length; i++){
-    axios.get(`${process.env.PHOSCON_SERVER}/api/${process.env.USER_TOKEN}/sensors/`+sensors[i])
-    .then(response =>  {
-      logDataToFile(sensors[i], response.data);  
-    });
-  }
-}
-
-function logDataToFile(sensor, data){
-  if(data.hasOwnProperty('type') && data.hasOwnProperty('state')){
-    if(data['type'].toLowerCase().includes('temp')){
-      var record = {
-        id: sensor,
-        sensor_type: "Temperature",
-        timestamp: new Date().toISOString(),
-        value: data.state['temperature']/100 
-      };
-      fs.appendFile(getTemperatureLogPath(), JSON.stringify(record)+',\n', function(err) {
-        if (err) {
-             console.log(err);
-         }
-     });
-    } else if(data['type'].toLowerCase().includes('humid')){
-      var record = {
-        id: sensor,
-        sensor_type: "Humidity",
-        timestamp: new Date().toISOString(),
-        value: data.state['humidity']/100
-      };
-      fs.appendFile(getHumidityLogPath(), JSON.stringify(record)+',\n', function(err) {
-        if (err) {
-             console.log(err);
-         }
-     });
+  //console.log("Updating Devices...");
+  elapsed = elapsed + updateRateSecods;
+  sqlconfig.getConfig(db, 
+    result => {
+      for(let i=0; i<result.length; i++){
+        let attribute = result[i].attribute;
+        let sensor = result[i].sensor;
+        let config = result[i].rowid;
+        let lastupdated = result[i].lastupdated;
+        axios.get(`${process.env.PHOSCON_SERVER}/api/${process.env.USER_TOKEN}/sensors/` + sensor)
+        .then(response =>  {
+            //console.log("Recording: " + result[i].name + '-' + attribute + ' ' + lastupdated);
+            sqldata.addData(db, config, response.data.state[attribute]/100, response.data.state['lastupdated'], lastupdated);
+        });
+      }
     }
+  );
+  if(elapsed > trimlogperiod){
+    console.log("Trimming Logs to: " + trimlogperiod/60/60/24 + " Days");
+    sqldata.deleteData(db, trimlogperiod);
+    elapsed = 0;
   }
 }
 
-function getTemperatureLogPath(){
-  return path.join(process.env.LOG_PATH, 'as_temperature.log')
-}
-function getHumidityLogPath(){
-  return path.join(process.env.LOG_PATH, 'as_humidity.log')
-}
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '/sensorviewer/index.html'));
@@ -79,12 +64,8 @@ app.get('/getSensor/:sensorId', (req, res) => {
   .then(response =>   res.send(response.data));
 });
 
-app.get('/getTemperatureLog', (req, res) => {
-  var data = fs.readFileSync(getTemperatureLogPath(), 'utf8');
-  res.send(data);
-});
-
-app.get('/getHumidityLog', (req, res) => {
-  var data = fs.readFileSync(getHumidityLogPath(), 'utf8');
-  res.send(data);
+app.get('/getData/:sensorType', (req, res) => {
+  sqldata.getData(db, req.params.sensorType, result => {
+    res.send(result);
+  });
 });
