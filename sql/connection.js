@@ -40,7 +40,7 @@ function createTables(newdb) {
   );
       `, ()  => {
         console.log("Database Created.");
-        sqlconfig.populateConfig(db);
+        sqlconfig.generateConfig(db, null);
   });
 }
 

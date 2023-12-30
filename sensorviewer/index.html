@@ -6,19 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://getbootstrap.com/docs/5.2/assets/css/docs.css" rel="stylesheet">
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.js"></script> -->
     <link rel="stylesheet" type="text/css" href="chart.css">
-    <title>AS Sensors</title>
+
+    <title>Sensor History</title>
 </head>
 
 <body class="p-3 m-0 border-0 bd-example">
     <nav class="navbar navbar-expand-lg bg-light">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">AS Sensors</a>
+            <a class="navbar-brand" href="#">Sensor History</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
                 aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -35,7 +36,6 @@
                             <li><a id="12hDropDown" class="dropdown-item" href="#" onclick="updateXAxis(12)">Last 12hrs</a></li>
                             <li><a id="24hDropDown" class="dropdown-item active" href="#" onclick="updateXAxis(24)">Last 24hrs</a></li>
                             <li><a id="48hDropDown" class="dropdown-item" href="#" onclick="updateXAxis(48)">Last 48hrs</a></li>
-                            <!-- <li><a class="dropdown-item" href="#" onclick="updateXAxis(168)">All</a></li> -->
                         </ul>
                     </li>
                 </ul>
@@ -46,30 +46,54 @@
     <div class="chart-container" style="position: relative; width:85vw; margin: 0 auto;">
         <canvas id="TempChart"></canvas>
         <canvas id="HumChart"></canvas>
-        <table class="table" style="margin-top:50px">
-            <thead>
-              <tr>
-                <th scope="col"></th>
-                <th scope="col">Size</th>
-                <th scope="col">Last Modified</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row">Temperature Log</th>
-                <td id="tsize"></td>
-                <td id="tlm"></td>
-              </tr>
-              <tr>
-                <th scope="row">Humidity Log</th>
-                <td id="hsize"></td>
-                <td id="hlm"></td>
-              </tr>
-            </tbody>
-          </table>
-          <script src="chart-config.js"></script>
+        <!-- charts are configured in chart-config.js -->
     </div>
+    <div id=tableDiv class="table-responsive" style="position: relative; width:85vw; margin: 0 auto; padding-top: 50px;">
+        <!-- The Config table is built from json, see config-table.js -->
+    </div>
+
+ 
+    <!-- Modal popup for editing a config, form data is populated in config-table.js -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h1 class="modal-title fs-5" id="editModalLabel">Edit Sensor</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="configForm" action="/updateconfig" target="">
+                    <div class="mb-3">
+                        <label for="rowid" class="form-label">Config ID</label>
+                        <input class="form-control" id="rowidInput" name="rowid" readonly>
+                    </div>
+                    <div class="mb-3">
+                      <label for="name" class="form-label">Name</label>
+                      <input class="form-control" id="nameInput" name="name">
+                    </div>
+                    <div class="mb-3">
+                      <label for="attribute" class="form-label">Attribute</label>
+                      <input class="form-control" id="attributeInput" name="attribute">
+                    </div>
+                    <div class="mb-3">
+                        <label for="modifier" class="form-label">Modifier</label>
+                        <input class="form-control" id="modifierInput" name="modifier">
+                    </div>
+                    <div class="mb-3 form-check">
+                      <label class="form-check-label" for="active">Is Active</label>
+                      <input type="checkbox" class="form-check-input" id="activeCheckbox" name="active">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </form>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <script src="table-config.js"></script>
+    <script src="chart-config.js"></script>
+
+
 </body>
-
-
 </html>

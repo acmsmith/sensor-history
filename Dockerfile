@@ -7,7 +7,8 @@ WORKDIR /usr/src/app
 # Copy package.json AND package-lock.json
 COPY package*.json ./
 
-#RUN npm install sqlite3 --build-from-source
+# To build for arm32 we need to build sqlite3 seperatly
+# First we remove it from our application, build it from source, then re-install it.
 RUN apk add --no-cache g++ git jq make python3 sqlite sqlite-dev \
   && NODE_SQLITE_VERSION=5.1.6 \
   && npm un sqlite3 -S \

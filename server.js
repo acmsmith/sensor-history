@@ -13,7 +13,6 @@ let elapsed = 0;
 
 app.listen(process.env.PORT, () => {
   console.log(`Phoscon Server: ${process.env.PHOSCON_SERVER}.`);
-  console.log(`The following sensors will be logged: ${process.env.SENSORS}.`);
   console.log(`Update Rate: ${process.env.UPDATE_RATE} seconds`);
   console.log(`History will be kept for: ${process.env.LOG_RETENTION_PERIOD} seconds`);
   console.log(`Sensor API is listening on port ${process.env.PORT}.`);
@@ -24,10 +23,12 @@ app.listen(process.env.PORT, () => {
 
 app.use(express.static('sensorviewer'));
 
+app.use(express.urlencoded({extended: true}));
+
 function phosconListener(){
   //console.log("Updating Devices...");
   elapsed = elapsed + updateRateSecods;
-  sqlconfig.getConfig(db, 
+  sqlconfig.getActiveConfig(db, 
     result => {
       for(let i=0; i<result.length; i++){
         let attribute = result[i].attribute;
@@ -54,18 +55,44 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '/sensorviewer/index.html'));
 });
 
+app.get('/getConfig', (req, res) => {
+  sqlconfig.getConfig(db, result => {
+    res.send(result);
+  });
+});
+
+app.post('/updateConfig', (req, res) => {
+  var active = 0;
+  if(req.body.active == "on")
+    active = 1;
+  sqlconfig.updateConfig(db, req.body.rowid, req.body.name, req.body.attribute, active, req.body.modifier);
+  res.send("Config Updated");
+});
+
 app.get('/getAllSensors', (req, res) => {
   axios.get(`${process.env.PHOSCON_SERVER}/api/${process.env.USER_TOKEN}/sensors/`)
-  .then(response =>   res.send(response.data));
+  .then(response => res.send(response.data));
 });
 
 app.get('/getSensor/:sensorId', (req, res) => {
   axios.get(`${process.env.PHOSCON_SERVER}/api/${process.env.USER_TOKEN}/sensors/`+req.params.sensorId)
+  .then(response => res.send(response.data));
+});
+
+app.get('/getCompleteState', (req, res) => {
+  axios.get(`${process.env.PHOSCON_SERVER}/api/${process.env.USER_TOKEN}/`)
   .then(response =>   res.send(response.data));
 });
 
 app.get('/getData/:sensorType', (req, res) => {
   sqldata.getData(db, req.params.sensorType, result => {
     res.send(result);
+  });
+});
+
+app.get('/refreshConfig', (req, res) => {
+  sqlconfig.getConfig(db, oldConfig => {
+    sqlconfig.generateConfig(db, oldConfig)
+    res.send('OK');
   });
 });

@@ -19,7 +19,7 @@ function addHours(date, hours) {
 }
 
 async function getSensorInfo(){
-    const response = await fetch('/getallsensors');
+    const response = await fetch('/getconfig');
     this.SensorInfo = await response.json();
     getSensorDataRaw('/getdata/temperature','TempChart');
     getSensorDataRaw('/getdata/humidity','HumChart');
@@ -39,7 +39,12 @@ function getSensorDatasets(data, chart){
     {
         let item = data[i];
         //let id = SeriesMap.get(item.id);
-        let sensor = SensorInfo[item.id];
+        let sensor =  this.SensorInfo.find((x) => x.rowid == item.id);
+
+        if(!sensor || sensor.active == 0)
+            continue;
+        
+        //let sensor = SensorInfo[item.id];
         let id = sensor.name;
         if(!result_map.has(id)){
             let dataset = {
