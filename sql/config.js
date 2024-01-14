@@ -19,6 +19,10 @@ function getConfig(db, fn) {
     db.run(`delete from sensor_config`);
   }
 
+  function removeConfig(db, rowid) {
+    db.run(`delete from sensor_config where rowid = ?;`, rowid);
+  }
+
   function addConfig(db, sensorId, name, aktive, attribute) {
     db.run(`  
     insert into sensor_config (sensor, name, active, attribute)
@@ -39,6 +43,18 @@ function getConfig(db, fn) {
     db.run(`  
     update sensor_config set lastupdated = ? where rowid = ?;
            `, lastupdated, rowid);
+  }
+
+  function disableConfig(db, rowid) {
+    db.run(`  
+    update sensor_config set active = 0 where rowid = ?;
+           `, rowid);
+  }
+
+  function enableConfig(db, rowid) {
+    db.run(`  
+    update sensor_config set active = 1 where rowid = ?;
+           `, rowid);
   }
 
   function generateConfig(db, oldConfig){
@@ -71,4 +87,4 @@ function getConfig(db, fn) {
   }
 
   module.exports = { getConfig, getActiveConfig, clearConfig, addConfig, 
-    updateConfig, updateLastupdated, generateConfig };
+    updateConfig, updateLastupdated, generateConfig, enableConfig, disableConfig, removeConfig };

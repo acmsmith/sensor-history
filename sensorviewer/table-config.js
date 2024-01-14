@@ -132,6 +132,19 @@ async function sendData() {
   }
 }
 
+async function refreshConfig() {
+  const response = await fetch('/refreshconfig');
+  location.reload();
+}
+
+async function deleteConfig(id) {
+  const sensorId = document.getElementById('rowidInput');
+  console.log(`Deleting Config ${sensorId.value}`);
+  const response = await fetch('/removeconfig/' + sensorId.value);
+  location.reload();
+}
+
+
 // Take over form submission
 form.addEventListener("submit", (event) => {
   event.preventDefault();

@@ -38,7 +38,15 @@ function phosconListener(){
         axios.get(`${process.env.PHOSCON_SERVER}/api/${process.env.USER_TOKEN}/sensors/` + sensor)
         .then(response =>  {
             //console.log("Recording: " + result[i].name + '-' + attribute + ' ' + lastupdated);
-            sqldata.addData(db, config, response.data.state[attribute]/100, response.data.state['lastupdated'], lastupdated);
+              sqldata.addData(db, config, response.data.state[attribute]/100, response.data.state['lastupdated'], lastupdated);
+        })
+        .catch(error => {
+          console.error(`Cannot update sensor ${sensor} : ${error}`);
+          if(error.response.status == 404){
+            //sensor not found so lets disable it in the config.
+            console.log(`Sensor ${sensor} not found, it will be disabled`);
+            sqlconfig.disableConfig(db, config);
+          }
         });
       }
     }
@@ -95,4 +103,9 @@ app.get('/refreshConfig', (req, res) => {
     sqlconfig.generateConfig(db, oldConfig)
     res.send('OK');
   });
+});
+
+app.get('/removeConfig/:sensorId', (req, res) => {
+    sqlconfig.removeConfig(db, req.params.sensorId);
+    res.send('OK');
 });

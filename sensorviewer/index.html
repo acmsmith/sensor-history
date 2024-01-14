@@ -50,8 +50,8 @@
     </div>
     <div id=tableDiv class="table-responsive" style="position: relative; width:85vw; margin: 0 auto; padding-top: 50px;">
         <!-- The Config table is built from json, see config-table.js -->
+        <button class="btn btn-primary" type="button" onclick="refreshConfig()">Refresh Config</button>
     </div>
-
  
     <!-- Modal popup for editing a config, form data is populated in config-table.js -->
     <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
@@ -84,6 +84,7 @@
                       <input type="checkbox" class="form-check-input" id="activeCheckbox" name="active">
                     </div>
                     <button type="submit" class="btn btn-primary">Update</button>
+                    <button type="button" onclick="deleteConfig()" class="btn btn-outline-danger">Delete</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </form>
             </div>
